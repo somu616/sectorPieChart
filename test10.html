@@ -1,0 +1,320 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>test 10</title>
+</head>
+<body onLoad="plotData()">
+
+<article id="article_two" style="position: absolute; left:
+150px; top: 150px; width: 350px; height: 210px; z-index: 1">
+<h1>What we do</h1>
+<p><time datetime="2010-03-15T10:32:17">March 15,
+2010</time></p>
+<H2>2010 Annual Report</H2>
+
+<canvas id="canvas" onmousemove="check(event)" onmousedown="extract(event)" width="600" height="600" style="border-width:1px ;border-style:solid;border-color:#000000">
+</canvas>
+
+<br><br>
+<span id="position"></span>
+</article>
+
+<script type="text/javascript">
+var canvas;
+var ctx;
+var myColor2 = ["#110000","#001100","#000011","#111100"];
+var myColor1 = ["#FF0000","#00FF00","#0000FF","#FFFF00"];
+var ang= new Array(4);
+//var dirY= new Array(4)
+var flag=false;
+var myData = [30,50,40,60];
+var index;
+var a,b;
+var p,q;																		//
+var px,py;																		//circle center co-ordinates
+
+var p1,q1;
+function getTotal()
+{
+	var myTotal = 0;
+	for (var j = 0; j < myData.length; j++)
+	{
+		myTotal += myData[j];
+	}
+	return myTotal;
+}
+
+function plotData()
+{
+	//check();
+	var lastend = 0;
+	var myTotal = getTotal();
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	//canvas.addEventListener('onmouseover', check(), false);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	var hWidth = canvas.width / 2;
+    var hHeight = canvas.height / 2;
+	px=hWidth;
+	py=hHeight;
+	ang[0]=360;
+		if(flag==false)
+		{
+			for (var i = 0; i < myData.length; i++)
+			{
+
+				ctx.beginPath();
+				ctx.moveTo(px,py);
+				//ctx.lineTo(350,150);
+				ctx.arc(px,py,150,lastend,(lastend+ (Math.PI*2*(myData[i]/myTotal))),false);
+		
+				ang[i+1]=360-(lastend+ (Math.PI*2*(myData[i]/myTotal)))*180/Math.PI;
+				//alert(ang[i]);
+		
+				//alert(lastend);
+				ctx.strokeStyle="#FFFFFF";
+				ctx.lineWidth   = 2;									//white line
+
+				ctx.lineTo(px,py);
+				//alert(px+" =px:py= "+py);
+				ctx.stroke();
+				var grd=ctx.createRadialGradient(px,py,5,hWidth,hHeight,hWidth-100);
+				grd.addColorStop(0,myColor1[i]);
+				grd.addColorStop(1,myColor2[i]);
+				ctx.fillStyle=grd;
+				ctx.fill();
+				lastend += Math.PI*2*(myData[i]/myTotal);
+			}
+		}
+		else																										// when user clicks....
+		{
+		 //alert("redraw");
+		 //alert("sector "+index);
+		 for (var i = 0; i < myData.length; i++)
+			{
+				if((i+1)==index)																					//for the sector he clicked on
+				{
+					
+					ctx.beginPath();
+					//ctx.lineTo(350,150);
+					var arcx,arcy;
+					//alert(p+" : "+q);
+					//alert("outer ring co ordinates = "+p+" : "+q);
+					
+					ang2=(ang[index-1]-((ang[index-1]-ang[index])/2))*Math.PI/180;
+					//alert("angle of the middle"+ang2);
+					p1 = parseInt(px+250*Math.cos(ang2));
+					//alert("you clicked"+a+" : "+b);
+					//alert("center y"+py);
+					if(b<(py+170))
+					{
+					q1 = parseInt((py+170)-250*Math.sin(ang2));
+					//alert("inside q1");
+					}
+					else
+					{
+					q1 = parseInt((py+170)+250*Math.abs(Math.sin(ang2)));
+					}
+					//alert("outer ring center co ordinates = "+p1+" : "+q1);
+					
+					arcx=parseInt(((6*px)+(1*p1))/(7));
+					arcy=parseInt(((6*(py+170))+(1*q1))/(7));
+					
+					//alert("arc new center = "+arcx+" : "+arcy);
+					
+					ctx.moveTo(arcx,arcy-168);
+					
+					ctx.arc(arcx,arcy-170,150,lastend,(lastend+ (Math.PI*2*(myData[i]/myTotal))),false);
+		
+					//ang[i+1]=360-(lastend+ (Math.PI*2*(myData[i]/myTotal)))*180/Math.PI;
+					//alert(ang[i]);
+		
+					//alert(lastend);
+					ctx.strokeStyle="#FFFFFF";
+					ctx.lineWidth   = 2;									//white line
+
+					ctx.lineTo(arcx,arcy-168);
+					ctx.stroke();
+					var grd=ctx.createRadialGradient(arcx,arcy-168,0,hWidth,hHeight,hWidth-100);
+					grd.addColorStop(0,myColor1[i]);
+					grd.addColorStop(1,myColor2[i]);
+					ctx.fillStyle=grd;
+					ctx.fill();
+					lastend += Math.PI*2*(myData[i]/myTotal);
+				}
+				else																								//for all remaining sectors
+				{
+					ctx.beginPath();
+					ctx.moveTo(px,py);
+					//ctx.lineTo(350,150);
+					
+					ctx.arc(px,py,150,lastend,(lastend+ (Math.PI*2*(myData[i]/myTotal))),false);
+		
+					ang[i+1]=360-(lastend+ (Math.PI*2*(myData[i]/myTotal)))*180/Math.PI;
+					//alert(ang[i]);
+		
+					//alert(lastend);
+					ctx.strokeStyle="#FFFFFF";
+					ctx.lineWidth   = 2;									//white line
+
+					ctx.lineTo(px,py);
+					ctx.stroke();
+					var grd=ctx.createRadialGradient(px,py,5,hWidth,hHeight,hWidth-100);
+					grd.addColorStop(0,myColor1[i]);
+					grd.addColorStop(1,myColor2[i]);
+					ctx.fillStyle=grd;
+					ctx.fill();
+					lastend += Math.PI*2*(myData[i]/myTotal);
+				}
+			}
+			smallcircle(p1,q1);
+		}
+		ctx.beginPath();
+		ctx.strokeStyle="#EEEEEE";
+		ctx.lineWidth   = 2;
+		ctx.arc(px,py,250,0,Math.PI*2,false);
+		ctx.stroke();
+		
+return;
+}
+
+//plotData();
+
+function check(ev)
+{
+	//alert("you are in the canvas");
+	flag=false;
+	plotData();
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	var pos=document.getElementById("position");
+	var x,y;
+	ctx.fillStyle="#FFFF00";
+	if (ev.layerX || ev.layerX == 0)
+	{ // Firefox
+		x = ev.layerX;
+    	y = ev.layerY;
+  	}
+  	else if (ev.offsetX || ev.offsetX == 0)
+  	{ // Opera
+	  x = ev.offsetX;
+  	  y = ev.offsetY;
+  	}
+
+	a=parseInt(x);
+	b=parseInt(y);
+	//alert(a+":"+b);
+	//alert(x+":"+y);
+	//var cx=canvas.width/2+100;
+	//var cy=canvas.height/2+100;
+	p=0,q=0;
+	pos.innerHTML=" "+a+" "+b;
+
+return;
+
+}
+
+
+function extract(ev)
+{
+	//alert("click");
+	flag=true;
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	ctx.fillStyle="#FF5500";
+	var x,y;
+	
+	if (ev.layerX || ev.layerX == 0)
+	{ // Firefox
+		x = ev.layerX;
+    	y = ev.layerY;
+  	}
+  	else if (ev.offsetX || ev.offsetX == 0)
+  	{ // Opera
+	  x = ev.offsetX;
+  	  y = ev.offsetY;
+  	}
+	
+	a=parseInt(x);
+	b=parseInt(y);
+	
+
+
+	a=parseInt(x);
+	b=parseInt(y);
+	
+	//smallcircle(a,b);
+	
+	//alert(a+" : "+b);
+	var angle=(Math.atan((b-(py+170)) /(a-px)));
+	//alert(angle);
+	if((a-px)<0)
+	{
+		if((b-(py+170))<0)
+		{
+					//alert("inside 1");
+					angle2=180-((angle)*180/Math.PI);
+					//alert(angle2);
+		}
+		else
+		{
+					//alert("inside 2");
+					angle2=Math.abs(((angle)*180/Math.PI))+180;
+					//alert(angle2);
+		}
+	}
+	else
+	{
+		if((b-(py+170))<0)
+		{
+					//alert("inside 3");
+					angle2=Math.abs(((angle)*180/Math.PI));
+					//alert(angle2);
+		}
+		else
+		{
+					//alert("inside 4");
+					angle2=360-((angle)*180/Math.PI);
+					//alert(angle2);
+					
+		}
+	}
+	index=search(angle2);
+	//alert("sector"+index);
+	plotData();
+	
+}
+function smallcircle(a1,b1)
+{
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	ctx.fillStyle="#FF5500";
+	a=parseInt(a1);
+	b=parseInt(b1);
+	
+		//alert("inside the circle");
+		//alert(a+" =a:b= "+b);
+		ctx.beginPath();
+		ctx.arc(Math.abs(a),Math.abs(b)-170,10,0,Math.PI*2,false);
+		ctx.fill();
+		
+	
+	return;
+}
+ function search(angle)
+ {
+	for(var x=0;x<myData.length;x++)
+	{
+		if(ang[x-1]>angle && ang[x]<angle)
+		break;
+	}
+	return x;
+ }
+
+
+
+</script>
+</section>
+</body>
+</html>
